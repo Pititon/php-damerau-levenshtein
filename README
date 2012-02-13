@@ -1,6 +1,6 @@
 This is C extension for PHP.
 It's contains multibyte string compatible Damerau-Levenshtein.
-Function name is damerau_levenshtein($str1, $str2, [$w1, $w2, $w3, $w4]).
+Function name is damerau_levenshtein(string str1, string str2, [int cost_ins, int cost_sub, int cost_del, int cost_tran]).
 
 INSTALATION
 
