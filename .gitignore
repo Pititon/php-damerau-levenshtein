@@ -1,3 +1,9 @@
+a.out.dSYM/
+damerau.la
+damerau.lo
+modules/
+nbproject/
+php/
 .deps
 Makefile
 Makefile.fragments
@@ -22,3 +28,7 @@ ltmain.sh
 missing
 mkinstalldirs
 run-tests.php
+/CppApplication_1/nbproject/private/
+/php-damerau-levenshtein/nbproject/private/
+/nbproject/private/
+/.libs/

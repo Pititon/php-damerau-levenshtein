@@ -12,6 +12,7 @@
 #include "php/Zend/zend_API.h"
 #include "php_ini.h"
 #include "php_damerau.h"
+#include "php/ext/mbstring/mbstring.h"
 #include "php/ext/mbstring/libmbfl/mbfl/mbfl_string.h"
 #include "php/ext/mbstring/libmbfl/mbfl/mbfl_language.h"
 #include "php/ext/mbstring/libmbfl/mbfl/mbfilter.h"
@@ -26,6 +27,8 @@ ZEND_BEGIN_ARG_INFO(arginfo_damerau_levenshtein, 0)
     ZEND_ARG_INFO(0, cost_del)
     ZEND_ARG_INFO(0, cost_tran)
 ZEND_END_ARG_INFO()
+
+ZEND_EXTERN_MODULE_GLOBALS(mbstring)
 
 static function_entry damerau_levenshtein_functions[] = {
 
@@ -157,11 +160,14 @@ static int reference_mb_damerau_levenshtein(
     
     int firstLength, secondLength;
     mbfl_string_init(&first);
-    first.no_encoding = mbfl_no_encoding_utf8;
+    first.no_language = MBSTRG(language);
+	first.no_encoding = MBSTRG(current_internal_encoding);
     first.val = (unsigned char *)f;
     first.len = fl;
+
     mbfl_string_init(&second);
-    second.no_encoding = mbfl_no_encoding_utf8;
+    second.no_language = MBSTRG(language);
+    second.no_encoding = MBSTRG(current_internal_encoding);
     second.val = (unsigned char *)s;
     second.len = sl;
     
@@ -203,8 +209,10 @@ static int reference_mb_damerau_levenshtein(
     
     mbfl_string_init(&firstCh);
     mbfl_string_init(&secondCh);
-    firstCh.no_encoding = mbfl_no_encoding_utf8;
-    secondCh.no_encoding = mbfl_no_encoding_utf8;
+    firstCh.no_language = MBSTRG(language);
+    firstCh.no_encoding = MBSTRG(current_internal_encoding);
+    secondCh.no_language = MBSTRG(language);
+    secondCh.no_encoding = MBSTRG(current_internal_encoding);
     
     for(i = 1; i <= secondLength; i++){
         retSecondCh = mbfl_substr(&second, &secondCh, i-1, 1);
