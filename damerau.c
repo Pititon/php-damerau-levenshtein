@@ -5,7 +5,8 @@
 #endif
 
 #include "php.h"
-#include "php/Zend/zend_API.h"
+#include "zend_API.h"
+#include "TSRM.h"
 #include "php_ini.h"
 #include "php_damerau.h"
 #include "ext/mbstring/mbstring.h"
@@ -31,9 +32,9 @@ static function_entry damerau_levenshtein_functions[] = {
 
 };
 
-
-
 /* {{{ damerau ini */
+
+
 
 ZEND_DECLARE_MODULE_GLOBALS(damerau)
 
@@ -63,11 +64,10 @@ ZEND_GET_MODULE(damerau)
 
 #endif
 
-#define MBSTRG_EX(v) (damerau_globals.v)
 
 int _php_mb_ini_mbstring_internal_encoding_set(const char *new_value, uint new_value_length TSRMLS_DC)
 {
-	enum mbfl_no_encoding no_encoding;
+    enum mbfl_no_encoding no_encoding;
   	const char *enc_name = NULL;
   	uint enc_name_len = 0;
    
@@ -190,7 +190,9 @@ static int reference_mb_damerau_levenshtein(
         const char *s, 
         int sl, 
         int cost_ins, int cost_sub, int cost_del, int cost_tran
+        TSRMLS_DC
 ){
+    
     int *currentRow, *previousRow, *transpositionRow, *tempRow;
     int i, j, t, from, to, cost = 0, value;
     mbfl_string first, second;
@@ -324,14 +326,14 @@ PHP_FUNCTION(damerau_levenshtein)
             if (zend_parse_parameters(2 TSRMLS_CC, "ss", &str1, &str1_len, &str2, &str2_len) == FAILURE) {
                 return;
             }
-            distance = reference_mb_damerau_levenshtein(str1, str1_len, str2, str2_len, 1, 1, 1, 1);
+            distance = reference_mb_damerau_levenshtein(str1, str1_len, str2, str2_len, 1, 1, 1, 1 TSRMLS_CC);
             break;
             
         case 6: /* more general version: calc cost by ins/rep/del weights */
             if (zend_parse_parameters(6 TSRMLS_CC, "ssllll", &str1, &str1_len, &str2, &str2_len, &cost_ins, &cost_sub, &cost_del, &cost_tran) == FAILURE) {
                 return;
             }
-            distance = reference_mb_damerau_levenshtein(str1, str1_len, str2, str2_len, cost_ins, cost_sub, cost_del, cost_tran);
+            distance = reference_mb_damerau_levenshtein(str1, str1_len, str2, str2_len, cost_ins, cost_sub, cost_del, cost_tran TSRMLS_CC);
             break;
             
         default:

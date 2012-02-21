@@ -6,6 +6,7 @@
 #include "ext/mbstring/libmbfl/mbfl/mbfl_string.h"
 #include "ext/mbstring/libmbfl/mbfl/mbfl_language.h"
 #include "ext/mbstring/libmbfl/mbfl/mbfilter.h"
+#include "TSRM.h"
 
 PHP_FUNCTION(damerau_levenshtein);
 
@@ -18,6 +19,10 @@ ZEND_BEGIN_MODULE_GLOBALS(damerau)
 	enum mbfl_no_encoding current_internal_encoding;
 ZEND_END_MODULE_GLOBALS(damerau)
 
+#ifdef ZTS
+#define MBSTRG_EX(v) TSRMG(damerau_globals_id, zend_damerau_globals *, v)
+#else
+#define MBSTRG_EX(v) (damerau_globals.v)
+#endif
 
-        
 #endif

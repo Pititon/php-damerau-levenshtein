@@ -1,3 +1,8 @@
+.DS_Store
+damerau.tar.gz
+damerau/
+tests/damerau.skip.php
+tmp-php.ini
 config.h.in~
 a.out.dSYM/
 damerau.la
@@ -33,3 +38,4 @@ run-tests.php
 /php-damerau-levenshtein/nbproject/private/
 /nbproject/private/
 /.libs/
+/damerau/.libs/
