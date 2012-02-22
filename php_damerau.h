@@ -1,6 +1,6 @@
 #ifndef PHP_DAMERAU_H
 #define PHP_DAMERAU_H 1
-#define PHP_DAMERAU_VERSION "1.0"
+#define PHP_DAMERAU_VERSION "1.3"
 #define PHP_DAMERAU_EXTNAME "damerau"
 
 #include "ext/mbstring/libmbfl/mbfl/mbfl_string.h"

@@ -13,6 +13,7 @@
 #include "ext/mbstring/libmbfl/mbfl/mbfl_string.h"
 #include "ext/mbstring/libmbfl/mbfl/mbfl_language.h"
 #include "ext/mbstring/libmbfl/mbfl/mbfilter.h"
+#include "php/ext/dba/libinifile/inifile.h"
 
 
 ZEND_BEGIN_ARG_INFO(arginfo_damerau_levenshtein, 0)
@@ -194,7 +195,7 @@ static int reference_mb_damerau_levenshtein(
 ){
     
     int *currentRow, *previousRow, *transpositionRow, *tempRow;
-    int i, j, t, from, to, cost = 0, value;
+    int i, ii, j, t, from, to, cost = 0, value;
     mbfl_string first, second;
     
     int firstLength, secondLength;
@@ -241,17 +242,23 @@ static int reference_mb_damerau_levenshtein(
         transpositionRow[i] = 0;
     }
     
-    mbfl_string *lastSecondCh;
-    mbfl_string *lastFirstCh;
-    mbfl_string firstCh, *retFirstCh;
-    mbfl_string secondCh, *retSecondCh;
+    mbfl_string lastFirstCh;
+    mbfl_string lastSecondCh;
+    mbfl_string firstCh, *retFirstCh = (mbfl_string *)NULL;
+    mbfl_string secondCh, *retSecondCh = (mbfl_string *)NULL;
     
     mbfl_string_init(&firstCh);
     mbfl_string_init(&secondCh);
+    mbfl_string_init(&lastFirstCh);
+    mbfl_string_init(&lastSecondCh);
     firstCh.no_language = MBSTRG_EX(language);
     firstCh.no_encoding = MBSTRG_EX(current_internal_encoding);
     secondCh.no_language = MBSTRG_EX(language);
     secondCh.no_encoding = MBSTRG_EX(current_internal_encoding);
+    lastFirstCh.no_language = MBSTRG_EX(language);
+    lastFirstCh.no_encoding = MBSTRG_EX(current_internal_encoding);
+    lastSecondCh.no_language = MBSTRG_EX(language);
+    lastSecondCh.no_encoding = MBSTRG_EX(current_internal_encoding);
     
     for(i = 1; i <= secondLength; i++){
         retSecondCh = mbfl_substr(&second, &secondCh, i-1, 1);
@@ -270,34 +277,37 @@ static int reference_mb_damerau_levenshtein(
             if(value > t) value = t;
             t = previousRow[j-1] + (cost?cost_sub:0); // substitution
             if(value > t) value = t;
-            
-            if(j>1 && (strcmp(retFirstCh->val,lastSecondCh->val) == 0) 
-                    && (strcmp(retSecondCh->val,lastFirstCh->val) == 0)
-            ){
-                t = transpositionRow[j-2] + (cost?cost_tran:0); // transposition
-                if(value > t) value = t; 
+            if( j>from && i > 1)
+            {
+                if(        (strcmp(lastSecondCh.val,retFirstCh->val) == 0) 
+                        && (strcmp(lastFirstCh.val,retSecondCh->val) == 0)
+                ){
+                    t = transpositionRow[j-2] + cost_tran; // transposition
+                    if(value > t) value = t; 
+                }
             }
-            
+                    
             currentRow[j] = value;
-            lastFirstCh = retFirstCh;
-            if(retFirstCh != (mbfl_string *)NULL)
-                mbfl_string_clear(retFirstCh);
+            mbfl_string_clear(&lastFirstCh);
+            lastFirstCh.val = retFirstCh->val;
+            lastFirstCh.len = retFirstCh->len;
         }
 
-        lastSecondCh = retSecondCh;
-        if(retSecondCh != (mbfl_string *)NULL)
-            mbfl_string_clear(retSecondCh);
+        mbfl_string_clear(&lastSecondCh);
+        lastSecondCh.val = retSecondCh->val;
+        lastSecondCh.len = retSecondCh->len;
         
         tempRow = transpositionRow;
         transpositionRow = previousRow;
         previousRow = currentRow;
         currentRow = tempRow;
+        for (ii=0; ii<=firstLength; ii++){
+            currentRow[ii] = 0;
+        }
     }
     
-    if(lastFirstCh != (mbfl_string *)NULL)
-        mbfl_string_clear(lastFirstCh);
-    if(lastSecondCh != (mbfl_string *)NULL)
-        mbfl_string_clear(lastSecondCh);
+    mbfl_string_clear(&lastFirstCh);
+    mbfl_string_clear(&lastSecondCh);
     
     cost = previousRow[firstLength];
 
