@@ -4,7 +4,7 @@ Bug #1 (Memory leaks)
 <?php extension_loaded('damerau') or die('skip damerau not available');?>
 --FILE--
 <?php
-for($i=1000000;$i;$i--)
+for($i=1000;$i;$i--)
     damerau_levenshtein("vvvqw", "vvvwq");
 echo("correct");
 ?>

@@ -15,7 +15,6 @@
 #include "ext/mbstring/libmbfl/mbfl/mbfilter.h"
 #include "php/ext/dba/libinifile/inifile.h"
 
-
 ZEND_BEGIN_ARG_INFO(arginfo_damerau_levenshtein, 0)
     ZEND_ARG_INFO(0, str1)
     ZEND_ARG_INFO(0, str2)
@@ -211,7 +210,16 @@ static int reference_mb_damerau_levenshtein(
     second.val = (unsigned char *)s;
     second.len = sl;
 
-	firstLength = mbfl_strlen(&first);
+	if(first.len > second.len){
+        char *tmps = first.val;
+        int tmpl = first.len;
+        first.len = second.len;
+        first.val = second.val;
+        second.len = tmpl;
+        second.val = tmps;
+    }
+
+    firstLength = mbfl_strlen(&first);
     secondLength = mbfl_strlen(&second);
     
     if (firstLength == 0) {
@@ -222,14 +230,6 @@ static int reference_mb_damerau_levenshtein(
     }
     if ((firstLength > LEVENSHTEIN_MAX_LENGTH) || (secondLength > LEVENSHTEIN_MAX_LENGTH)) {
         return -1;
-    }
-    if(firstLength > secondLength){
-        mbfl_string *tmp = &first;
-        first = second;
-        second = *tmp;
-        int tmpl = secondLength;
-        secondLength = firstLength;
-        firstLength = tmpl;
     }
     
     currentRow = safe_emalloc((firstLength + 1), sizeof(int), 0);
@@ -286,7 +286,7 @@ static int reference_mb_damerau_levenshtein(
                     if(value > t) value = t; 
                 }
             }
-                    
+            
             currentRow[j] = value;
             mbfl_string_clear(&lastFirstCh);
             lastFirstCh.val = retFirstCh->val;
