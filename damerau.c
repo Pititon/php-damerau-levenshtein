@@ -13,7 +13,6 @@
 #include "ext/mbstring/libmbfl/mbfl/mbfl_string.h"
 #include "ext/mbstring/libmbfl/mbfl/mbfl_language.h"
 #include "ext/mbstring/libmbfl/mbfl/mbfilter.h"
-#include "php/ext/dba/libinifile/inifile.h"
 
 ZEND_BEGIN_ARG_INFO(arginfo_damerau_levenshtein, 0)
     ZEND_ARG_INFO(0, str1)
