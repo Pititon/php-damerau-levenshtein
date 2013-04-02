@@ -1,4 +1,4 @@
---TEST--
+--TEST1--
 Bug #1 (Memory leaks)
 --SKIPIF--
 <?php extension_loaded('damerau') or die('skip damerau not available');?>
